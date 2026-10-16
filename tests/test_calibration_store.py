@@ -83,3 +83,50 @@ def test_missing_and_corrupt_profiles_are_ignored(tmp_path):
     (tmp_path / ".kon/calibration.json").write_text("not-json")
     assert load_calibration(tmp_path, configuration()) is None
     assert not compatible_configuration({}, configuration())
+
+
+def test_explicit_single_camera_marker_preserves_existing_profile_identity(tmp_path):
+    original = model()
+    save_calibration(tmp_path, original, configuration())
+    files = set((tmp_path / ".kon/aim-calibrations").glob("*.json"))
+    current = configuration() | {"acquisition_mode": "single"}
+    assert compatible_configuration(configuration(), current)
+    assert load_calibration(tmp_path, current).raw_points == original.raw_points
+    save_calibration(tmp_path, original, current)
+    assert set((tmp_path / ".kon/aim-calibrations").glob("*.json")) == files
+
+
+@pytest.mark.parametrize("retired_mode", ["stereo", "unsupported"])
+def test_retired_acquisition_profiles_never_load_as_single_camera(tmp_path, retired_mode):
+    config = configuration()
+    save_calibration(tmp_path, model(), config)
+    for metadata in (tmp_path / ".kon").rglob("*.json"):
+        if metadata.name.endswith(".meta.json") or metadata.name == "calibration-meta.json":
+            metadata.write_text(json.dumps(config | {"acquisition_mode": retired_mode}))
+    assert load_calibration(tmp_path, config) is None
+    retired = config | {"acquisition_mode": retired_mode}
+    assert not compatible_configuration(retired, config)
+    assert not compatible_configuration(config, retired)
+    assert load_calibration(tmp_path, retired) is None
+
+
+def test_ignoring_retired_metadata_and_rejected_save_preserve_single_camera_profile(tmp_path):
+    config = configuration()
+    original = model()
+    save_calibration(tmp_path, original, config)
+    legacy = config | {"acquisition_mode": "stereo", "secondary_camera": 1,
+                       "stereo_calibration_id": "retired-rig", "screen_plane_id": "retired-plane"}
+    folder = tmp_path / ".kon"
+    points = [(x, y) for y in (0, .5, 1) for x in (0, .5, 1)]
+    wrong = ScreenCalibration.fit(points, [(x * .8 + .1, y * .8 + .1) for x, y in points])
+    wrong.save(folder / "calibration.json")
+    (folder / "calibration-meta.json").write_text(json.dumps(legacy))
+    wrong.save(folder / "aim-calibrations/legacy-rig.json")
+    (folder / "aim-calibrations/legacy-rig.meta.json").write_text(json.dumps(legacy))
+    before = {path: path.read_bytes() for path in folder.rglob("*.json")}
+    restored = load_calibration(tmp_path, config)
+    assert restored.raw_points == original.raw_points
+    with pytest.raises(ValueError, match="single-camera"):
+        save_calibration(tmp_path, wrong, legacy)
+    assert {path: path.read_bytes() for path in folder.rglob("*.json")} == before
+    assert load_calibration(tmp_path, config).raw_points == original.raw_points

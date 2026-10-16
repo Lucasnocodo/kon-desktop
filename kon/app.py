@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .paths import resource_root, state_root as user_state_dir
+from .i18n import get_language, preferred_language, retranslate_all, save_language, set_language
 
 import argparse
 from dataclasses import dataclass, replace
@@ -10,14 +11,11 @@ from pathlib import Path
 from statistics import median
 import sys
 import time
-from uuid import uuid4
 
 from PySide6.QtCore import QObject, QRunnable, Qt, QThreadPool, QTimer, Signal
 from PySide6.QtGui import QCloseEvent, QFont, QIcon, QImage, QPixmap
-from PySide6.QtWidgets import (
-    QApplication, QCheckBox, QComboBox, QDoubleSpinBox, QFrame, QHBoxLayout, QLabel,
-    QLayout, QLineEdit, QMainWindow, QMenu, QPushButton, QScrollArea, QSpinBox, QSystemTrayIcon, QVBoxLayout, QWidget,
-)
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QLayout, QScrollArea, QVBoxLayout
+from .i18n import QComboBox, QDoubleSpinBox, QFrame, QLabel, QLineEdit, QMainWindow, QMenu, QPushButton, QSpinBox, QSystemTrayIcon, QWidget
 
 from .desktop import DesktopTarget, restore_receipt, scan_desktop, trash_target, validate_target_position
 from .calibration import CalibrationBuffer
@@ -44,9 +42,6 @@ from .speech import DEFAULT_TRIGGER_SETTING, SpeechWorker, parse_trigger_phrases
 from .audio_devices import list_microphones, microphone_setting as encode_microphone
 from .selection_settings import SelectionSettings, save_selection_settings
 from .vision import CameraWorker, hand_circle_cursor
-from .stereo_vision import StereoCameraWorker
-from .stereo_settings import StereoRig
-from .stereo_capture import list_camera_sources
 
 ROOT = resource_root()
 CALIBRATION_POINTS = [(x, y) for y in (0.18, 0.5, 0.82) for x in (0.18, 0.5, 0.82)]
@@ -155,8 +150,8 @@ class Window(QMainWindow):
             raise ValueError("瞄準方式無效")
         self.aim_mode = aim_mode
         self.setWindowTitle("KON · 狐狸召喚")
-        self.resize(1040, 880)
-        self.setMinimumSize(960, 840)
+        self.resize(1140 if get_language() == 'en' else 1040, 880)
+        self.setMinimumSize(1100 if get_language() == 'en' else 960, 840)
         self.setStyleSheet(STYLE)
         self.screen = QApplication.primaryScreen()
         self.overlay = ScreenOverlay(self.screen)
@@ -165,9 +160,6 @@ class Window(QMainWindow):
         self.overlay.bite.connect(self.on_bite)
         self.overlay.animation_done.connect(self.on_animation_done)
         self.camera = self.speech = None
-        self.stereo_rig = None
-        self.stereo_dialog = None
-        self.camera_sources = []
         self.running = self.armed = self.testing = self.calibrating = False
         self.voice_active = False
         self.voice_armed_at = 0.0
@@ -277,6 +269,16 @@ class Window(QMainWindow):
         brand.addWidget(subtitle)
         top.addLayout(brand)
         top.addStretch()
+        language_controls = QVBoxLayout()
+        language_controls.addWidget(label("Language / 語言", "muted"))
+        self.language_combo = QComboBox()
+        self.language_combo.addItem("繁體中文", "zh-TW")
+        self.language_combo.addItem("English", "en")
+        self.language_combo.setAccessibleName("Interface language")
+        self.language_combo.setCurrentIndex(self.language_combo.findData(get_language()))
+        self.language_combo.currentIndexChanged.connect(self.change_language)
+        language_controls.addWidget(self.language_combo)
+        top.addLayout(language_controls)
         self.voice_instructions = label(f"移動手圈  →  鎖定檔案\n手勢維持  +  說出 {self.trigger_display}", "muted")
         top.addWidget(self.voice_instructions)
         layout.addLayout(top)
@@ -317,12 +319,6 @@ class Window(QMainWindow):
         controls.addWidget(self.aim_method)
         self.aim_description = label("", "muted")
         controls.addWidget(self.aim_description)
-        self.acquisition = QComboBox()
-        self.acquisition.addItem("單鏡頭", "single")
-        self.acquisition.addItem("雙鏡頭 · 外部攝影機＋副鏡頭", "stereo")
-        self.acquisition.setAccessibleName("拍攝方式")
-        self.acquisition.currentIndexChanged.connect(self.acquisition_changed)
-        controls.addWidget(self.acquisition)
         settings = QHBoxLayout()
         self.eye = QComboBox()
         self.eye.addItems(["右眼瞄準", "左眼瞄準"])
@@ -330,37 +326,12 @@ class Window(QMainWindow):
         self.camera_index = QSpinBox()
         self.camera_index.setRange(0, 31)
         self.camera_index.setPrefix("鏡頭 ")
-        self.camera_index.setAccessibleName("主鏡頭編號")
+        self.camera_index.setAccessibleName("鏡頭編號")
         self.camera_index.valueChanged.connect(self.settings_changed)
         settings.addWidget(self.eye)
         self.eye.setVisible(self.aim_mode == "eye_ray")
         settings.addWidget(self.camera_index)
         controls.addLayout(settings)
-        self.stereo_controls = QWidget(right)
-        stereo_layout = QVBoxLayout(self.stereo_controls)
-        stereo_layout.setContentsMargins(0, 0, 0, 0)
-        stereo_layout.setSpacing(7)
-        self.secondary_camera_index = QSpinBox()
-        self.secondary_camera_index.setRange(0, 31)
-        self.secondary_camera_index.setValue(1)
-        self.secondary_camera_index.setPrefix("副鏡頭 ")
-        self.secondary_camera_index.setAccessibleName("副鏡頭編號")
-        self.secondary_camera_index.valueChanged.connect(self.stereo_sources_changed)
-        stereo_layout.addWidget(self.secondary_camera_index)
-        self.refresh_cameras_button = QPushButton("查看可用鏡頭名稱")
-        self.refresh_cameras_button.clicked.connect(self.refresh_camera_sources)
-        stereo_layout.addWidget(self.refresh_cameras_button)
-        self.source_names = label("iPhone 可用接續互通；iPad 請先透過 Camo Studio 連線。選擇不同的兩台鏡頭。", "muted")
-        stereo_layout.addWidget(self.source_names)
-        self.stereo_cal_button = QPushButton("校正雙鏡頭與螢幕位置")
-        self.stereo_cal_button.clicked.connect(self.begin_stereo_calibration)
-        stereo_layout.addWidget(self.stereo_cal_button)
-        self.stereo_status = label("尚未完成雙鏡頭校正", "muted")
-        stereo_layout.addWidget(self.stereo_status)
-        self.rig_confirm = QCheckBox("已確認兩鏡位置、構圖與螢幕未變")
-        self.rig_confirm.setAccessibleName("確認雙鏡頭校正配置未變")
-        stereo_layout.addWidget(self.rig_confirm)
-        controls.addWidget(self.stereo_controls)
         fov_row = QHBoxLayout()
         fov_label = label("鏡頭左右視野", "muted")
         fov_row.addWidget(fov_label)
@@ -471,7 +442,8 @@ class Window(QMainWindow):
         self.controls_scroll.setWidgetResizable(True)
         self.controls_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.controls_scroll.setFrameShape(QFrame.NoFrame)
-        self.controls_scroll.setMaximumWidth(350)
+        self.controls_scroll.setMinimumWidth(410 if get_language() == 'en' else 0)
+        self.controls_scroll.setMaximumWidth(440 if get_language() == 'en' else 350)
         self.controls_scroll.setWidget(right)
         columns.addWidget(self.controls_scroll, 2)
         layout.addLayout(columns, 1)
@@ -493,7 +465,8 @@ class Window(QMainWindow):
     def _build_tray(self):
         pixmap = QPixmap(32, 32)
         pixmap.fill(Qt.transparent)
-        from PySide6.QtGui import QPainter, QColor
+        from PySide6.QtGui import QColor
+        from .i18n import QPainter
         from PySide6.QtCore import QRectF
         from .overlay import draw_fox
         painter = QPainter(pixmap)
@@ -518,130 +491,7 @@ class Window(QMainWindow):
                 "fov": self.fov.value(), "screen": [rect.width(), rect.height()],
                 "screen_name": self.screen.name(), "screen_serial": self.screen.serialNumber(),
                 "screen_origin": [rect.x(), rect.y()], "machine_id": machine_key()}
-        if self.using_stereo:
-            config.update(acquisition_mode="stereo", secondary_camera=self.secondary_camera_index.value(),
-                          stereo_calibration_id=self.stereo_rig.calibration.calibration_id if self.stereo_rig else "",
-                          screen_plane_id=self.stereo_rig.screen_plane.plane_id if self.stereo_rig else "")
         return config
-
-    @property
-    def using_stereo(self):
-        return self.aim_mode == "eye_ray" and self.acquisition.currentData() == "stereo"
-
-    def stereo_path(self):
-        return user_state_dir(ROOT) / 'stereo-rigs' / f"{machine_key()}-{self.camera_index.value()}-{self.secondary_camera_index.value()}.json"
-
-    def load_stereo_rig(self):
-        self.stereo_rig = None
-        try:
-            rig = StereoRig.load(self.stereo_path())
-            rect = self.screen.geometry()
-            if rig.compatible(self.camera_index.value(), self.secondary_camera_index.value(),
-                              self.screen.name(), self.screen.serialNumber(), (rect.width(), rect.height())):
-                self.stereo_rig = rig
-        except (OSError, ValueError, TypeError, KeyError):
-            pass
-        self.refresh_stereo_status()
-
-    def refresh_stereo_status(self):
-        if self.stereo_rig is None:
-            self.stereo_status.setText("尚未完成雙鏡頭校正 · 先校正兩機，再做九點瞄準")
-        else:
-            calibration = self.stereo_rig.calibration
-            identity_note = "" if calibration.primary_id and calibration.secondary_id else "\n裝置識別未驗證；每次啟動前請核對兩個預覽與編號。"
-            self.stereo_status.setText(f"已保存 · 基線 {calibration.baseline_m * 100:.1f} cm · 重投影誤差 {calibration.rms:.2f} px{identity_note}")
-
-    def acquisition_changed(self, *_):
-        if self.running:
-            previous = self.acquisition.blockSignals(True)
-            self.acquisition.setCurrentIndex(1 if isinstance(self.camera, StereoCameraWorker) else 0)
-            self.acquisition.blockSignals(previous)
-            self.tell("請先暫停鏡頭，再切換拍攝方式。")
-            return
-        self.return_to_control()
-        self.latest = None
-        self.rig_confirm.setChecked(False)
-        self.load_stereo_rig()
-        self.refresh_aim_controls()
-        self.settings_changed()
-        self.save_camera_settings()
-
-    def stereo_sources_changed(self, *_):
-        self.rig_confirm.setChecked(False)
-        self.settings_changed()
-        self.save_camera_settings()
-
-    def save_camera_settings(self):
-        try:
-            payload = self.config() | {"acquisition_mode": self.acquisition.currentData(),
-                                       "secondary_camera": self.secondary_camera_index.value()}
-            destination = user_state_dir(ROOT) / 'camera-settings.json'
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            temporary = destination.with_suffix(".tmp")
-            temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2, allow_nan=False))
-            temporary.replace(destination)
-        except (OSError, ValueError) as exc:
-            self.tell(f"拍攝設定已套用，但無法儲存：{exc}")
-
-    def refresh_camera_sources(self):
-        self.refresh_cameras_button.setEnabled(False)
-        def done(sources):
-            self.camera_sources = sources
-            names = "\n".join(f"{source.index} · {source.name}" for source in sources)
-            if len(sources) < 2:
-                names += ("\n尚未找到兩台鏡頭。iPad 請先在 Camo Studio 確認預覽；"
-                          "若 iPhone 曾按「中斷連接」，請拔插 USB，解鎖再鎖定並橫放；"
-                          "若顯示「繼續」請先按下，再重新查看清單。")
-            self.source_names.setText(names.strip())
-            self.refresh_cameras_button.setEnabled(not self.running)
-        job = Job(list_camera_sources)
-        self._jobs.add(job)
-        job.signals.done.connect(lambda sources: (self._jobs.discard(job), done(sources)))
-        job.signals.failed.connect(lambda reason: (self._jobs.discard(job),
-            self.refresh_cameras_button.setEnabled(not self.running), self.tell(reason)))
-        self.pool.start(job)
-
-    def begin_stereo_calibration(self):
-        if self.running or any(worker is not None and worker.isRunning() for worker in (self.camera, self.speech)):
-            self.tell("請先暫停鏡頭，等兩路影像停止後再校正。")
-            return
-        if self.camera_index.value() == self.secondary_camera_index.value():
-            self.tell("主鏡頭與副鏡頭必須選擇不同的編號。")
-            return
-        if self.stereo_dialog is not None:
-            self.stereo_dialog.raise_()
-            return
-        from .stereo_dialog import StereoCalibrationDialog
-        self.return_to_control()
-        self.cancel_pronunciation_calibration()
-        physical = self.screen.physicalSize()
-        identities = {source.index: source.device_id for source in self.camera_sources}
-        dialog = StereoCalibrationDialog(
-            self.camera_index.value(), self.secondary_camera_index.value(), self,
-            initial_plane=self.stereo_rig.screen_plane if self.stereo_rig else None,
-            screen_size_mm=(physical.width(), physical.height()),
-            primary_id=identities.get(self.camera_index.value(), ""),
-            secondary_id=identities.get(self.secondary_camera_index.value(), ""))
-        self.stereo_dialog = dialog
-        dialog.calibrated.connect(self.install_stereo_calibration)
-        dialog.finished.connect(lambda _: setattr(self, "stereo_dialog", None))
-        dialog.show()
-
-    def install_stereo_calibration(self, calibration, plane):
-        rect = self.screen.geometry()
-        candidate = StereoRig(calibration, plane, self.screen.name(), self.screen.serialNumber(),
-                              (rect.width(), rect.height()))
-        try:
-            candidate.save(self.stereo_path())
-        except (OSError, ValueError, TypeError) as exc:
-            self.tell(f"雙鏡頭校正未儲存，保留舊設定：{exc}")
-            return
-        self.stereo_rig = candidate
-        self.rig_confirm.setChecked(True)
-        self.refresh_stereo_status()
-        self.settings_changed()
-        self.save_camera_settings()
-        self.tell("雙鏡頭與螢幕位置已保存。啟動後請做雙鏡頭專用的九點瞄準，再到演練檢查精度。")
 
     @staticmethod
     def saved_aim_mode():
@@ -782,15 +632,12 @@ class Window(QMainWindow):
 
     def refresh_aim_controls(self):
         hand = self.aim_mode == "hand"
-        stereo = self.using_stereo
-        self.camera_heading.setText("CAMERA / 手部追蹤" if hand else "CAMERA / 雙視角三維追蹤" if stereo else "CAMERA / 手部與慣用眼追蹤")
+        self.camera_heading.setText("CAMERA / 手部追蹤" if hand else "CAMERA / 手部與慣用眼追蹤")
         self.aim_description.setText(
             "移動手圈控制準星；不需要眼睛入鏡。" if hand else
             "用慣用眼穿過手圈指向檔案；眼睛與整隻手需入鏡。")
         self.eye.setVisible(not hand)
-        self.fov_controls.setVisible(not hand and not stereo)
-        self.acquisition.setEnabled(not self.running and not hand)
-        self.stereo_controls.setVisible(stereo)
+        self.fov_controls.setVisible(not hand)
         self.aim_heading.setText("02  手圈移動範圍" if hand else "02  校正瞄準")
         self.cal_button.setText("調整手部移動範圍（選用）" if hand else "校正眼睛 → 手圈")
         self.footnote.setText(
@@ -862,39 +709,39 @@ class Window(QMainWindow):
             self.tell("已沿用這台機器的瞄準校正；可以直接啟動，或另外記錄自己的召喚手勢。")
 
     def _restore_settings(self):
-        try:
-            saved = json.loads((user_state_dir(ROOT) / 'camera-settings.json').read_text())
-        except (OSError, ValueError, TypeError):
+        # Ignore retired acquisition settings and retain the last compatible
+        # single-camera configuration without rewriting any saved profile.
+        candidates = []
+        for filename in ("camera-settings.json", "preferences.json", "calibration-meta.json"):
             try:
-                preferences = json.loads((user_state_dir(ROOT) / 'preferences.json').read_text())
-                saved = preferences.get("camera_settings") if isinstance(preferences, dict) else None
+                saved = json.loads((user_state_dir(ROOT) / filename).read_text())
+                if filename == "preferences.json":
+                    saved = saved.get("camera_settings") if isinstance(saved, dict) else None
+                candidates.append(saved)
             except (OSError, ValueError, TypeError):
-                saved = None
-        try:
-            if not isinstance(saved, dict):
-                saved = json.loads((user_state_dir(ROOT) / 'calibration-meta.json').read_text())
-            if saved.get("eye") not in ("right", "left") or not 0 <= saved.get("camera", -1) <= 31 or not 20 <= saved.get("fov", 0) <= 120:
-                return
-            values = [(self.eye, 0 if saved["eye"] == "right" else 1), (self.camera_index, saved["camera"]), (self.fov, saved["fov"])]
-            for control, value in values:
-                previous = control.blockSignals(True)
-                if control is self.eye:
-                    control.setCurrentIndex(value)
-                else:
-                    control.setValue(value)
-                control.blockSignals(previous)
-            for control, value in ((self.secondary_camera_index, saved.get("secondary_camera", 1)),):
-                if isinstance(value, int) and not isinstance(value, bool) and 0 <= value <= 31:
+                continue
+        for saved in candidates:
+            if not isinstance(saved, dict) or saved.get("acquisition_mode", "single") != "single":
+                continue
+            try:
+                camera, fov = saved.get("camera"), saved.get("fov")
+                if (saved.get("eye") not in ("right", "left")
+                        or not isinstance(camera, int) or isinstance(camera, bool) or not 0 <= camera <= 31
+                        or isinstance(fov, bool) or not isinstance(fov, (int, float)) or not 20 <= fov <= 120):
+                    continue
+                values = ((self.eye, 0 if saved["eye"] == "right" else 1),
+                          (self.camera_index, camera), (self.fov, fov))
+                for control, value in values:
                     previous = control.blockSignals(True)
-                    control.setValue(value)
+                    if control is self.eye:
+                        control.setCurrentIndex(value)
+                    else:
+                        control.setValue(value)
                     control.blockSignals(previous)
-            previous = self.acquisition.blockSignals(True)
-            self.acquisition.setCurrentIndex(1 if saved.get("acquisition_mode") == "stereo" else 0)
-            self.acquisition.blockSignals(previous)
-            self.load_stereo_rig()
-            self.refresh_aim_controls()
-        except (OSError, ValueError, TypeError, KeyError):
-            pass
+                self.refresh_aim_controls()
+                return
+            except (TypeError, ValueError):
+                continue
 
     def _load_calibration_attempt(self):
         if self.aim_mode == "hand":
@@ -1046,7 +893,6 @@ class Window(QMainWindow):
             self.gesture_profile = None
             self.update_gesture_profile_label()
 
-
     def update_gesture_profile_label(self):
         if self.gesture_profile is None:
             self.gesture_profile_label.setText("尚未記錄 · 目前使用預設 KON 手勢")
@@ -1104,7 +950,6 @@ class Window(QMainWindow):
             self.gesture_dialog.set_preview(self.preview.image)
         self.gesture_dialog.show()
         self.refresh_gesture_capture()
-
 
     def gesture_save_path(self):
         return gesture_profile_path(ROOT)
@@ -1355,7 +1200,7 @@ class Window(QMainWindow):
             self.microphone_combo.blockSignals(False)
             self.refresh_microphone_controls()
             self.tell("已列出可用麥克風；iPhone／iPad 會保留給攝影機。" if devices else
-                      "沒有可用的非 iPhone／iPad 麥克風。請連接外部攝影機的麥克風、USB 麥克風或耳機；仍可先做雙鏡頭校正。")
+                      "沒有可用的非 iPhone／iPad 麥克風。請連接外部攝影機的麥克風、USB 麥克風或耳機。")
         job = Job(list_microphones)
         self._jobs.add(job)
         job.signals.done.connect(lambda devices: (self._jobs.discard(job), done(devices)))
@@ -1686,8 +1531,6 @@ class Window(QMainWindow):
             preferences.update(voice_trigger=setting, voice_trigger_mode=self.voice_trigger_mode, camera_settings={
                 "eye": "right" if self.eye.currentIndex() == 0 else "left",
                 "camera": self.camera_index.value(), "fov": self.fov.value(),
-                "acquisition_mode": self.acquisition.currentData(),
-                "secondary_camera": self.secondary_camera_index.value(),
             })
             if changed:
                 preferences.pop("voice_language", None)
@@ -1706,12 +1549,6 @@ class Window(QMainWindow):
     def settings_changed(self, *_):
         if not hasattr(self, "cal_label"):
             return
-        if hasattr(self, "stereo_status"):
-            old_rig = self.stereo_rig
-            self.load_stereo_rig()
-            if ((old_rig.calibration.calibration_id if old_rig else None)
-                    != (self.stereo_rig.calibration.calibration_id if self.stereo_rig else None)):
-                self.rig_confirm.setChecked(False)
         self.calibration = None
         self.calibration_diagnostics = None
         self.calibration_raw.clear()
@@ -1723,9 +1560,6 @@ class Window(QMainWindow):
         self.test_button.setEnabled(self.running and self.calibration is not None)
 
     def screen_changed(self, *_):
-        self.rig_confirm.setChecked(False)
-        if self.running and self.using_stereo:
-            self.stop_sensors()
         self.return_to_control()
         self.settings_changed()
         self.overlay.setGeometry(self.screen.geometry())
@@ -1759,27 +1593,13 @@ class Window(QMainWindow):
         if any(worker is not None and worker.isRunning() for worker in (self.camera, self.speech)):
             self.tell("感測器正在停止，請稍候。")
             return
-        if self.stereo_dialog is not None:
-            self.tell("請先完成或取消雙鏡頭校正，再啟動追蹤。")
-            return
-        if self.using_stereo:
-            if self.stereo_rig is None:
-                self.tell("請先選好主鏡頭與副鏡頭，完成雙鏡頭與螢幕位置校正。")
-                return
-            if not self.rig_confirm.isChecked():
-                self.tell("啟動前請確認兩台鏡頭位置、縮放及螢幕未變；有移動時請重做雙鏡頭校正。")
-                return
         if not self.trigger_changed():
             return
         self.running = True
         self.gate = self.selection_gate()
         self.latest = None
-        self.camera = (StereoCameraWorker(self.stereo_rig.calibration, self.stereo_rig.screen_plane,
-                                         self.config()["eye"], gesture_profile=self.gesture_profile,
-                                         diagnostics_path=user_state_dir(ROOT) / 'stereo-live-diagnostics' / f'{uuid4().hex}.json')
-                       if self.using_stereo else
-                       CameraWorker(self.camera_index.value(), self.fov.value(), self.config()["eye"],
-                                    gesture_profile=self.gesture_profile, aim_mode=self.aim_mode))
+        self.camera = CameraWorker(self.camera_index.value(), self.fov.value(), self.config()["eye"],
+                                   gesture_profile=self.gesture_profile, aim_mode=self.aim_mode)
         self.speech = SpeechWorker(ROOT, trigger_setting=self.trigger_setting, language=self.trigger_language,
                                    accepted_phrases=self.pronunciation_phrases(), trigger_mode=self.voice_trigger_mode,
                                    microphone_setting=self.microphone_setting)
@@ -1797,9 +1617,7 @@ class Window(QMainWindow):
         self.speech.transcript.connect(lambda text: self.tell(f"聽到：{text or '（未辨識）'}"))
         self.speech.keyword.connect(self.on_keyword)
         self.start_button.setText("暫停鏡頭與麥克風")
-        for control in (self.aim_method, self.eye, self.camera_index, self.fov, self.trigger_input,
-                        self.acquisition, self.secondary_camera_index, self.refresh_cameras_button,
-                        self.stereo_cal_button, self.rig_confirm):
+        for control in (self.aim_method, self.eye, self.camera_index, self.fov, self.trigger_input):
             control.setEnabled(False)
         self.cal_button.setEnabled(True)
         self.gesture_button.setEnabled(True)
@@ -1837,11 +1655,8 @@ class Window(QMainWindow):
             if worker:
                 worker.stop()
         self.start_button.setText("啟動鏡頭與麥克風")
-        for control in (self.aim_method, self.eye, self.camera_index, self.fov, self.trigger_input,
-                        self.acquisition, self.secondary_camera_index, self.refresh_cameras_button,
-                        self.stereo_cal_button, self.rig_confirm):
+        for control in (self.aim_method, self.eye, self.camera_index, self.fov, self.trigger_input):
             control.setEnabled(True)
-        self.acquisition.setEnabled(self.aim_mode != "hand")
         self.refresh_microphone_controls()
         self.cal_button.setEnabled(False)
         self.gesture_button.setEnabled(False)
@@ -2014,8 +1829,7 @@ class Window(QMainWindow):
         if not self.running:
             return
         now = time.monotonic()
-        expected_acquisition = "stereo" if self.using_stereo else "single"
-        if frame.aiming_mode != self.aim_mode or getattr(frame, "acquisition_mode", "single") != expected_acquisition:
+        if frame.aiming_mode != self.aim_mode:
             self.gate.invalidate_tracking(now)
             self.set_voice(False)
             self.hand_smoother.reset()
@@ -2060,16 +1874,9 @@ class Window(QMainWindow):
                 return
             points = getattr(frame, "hand_world_points", ())
             enrollment_fresh = 0 <= now - frame.timestamp <= self.gesture_buffer.max_age
-            unavailable_reason = ""
-            enrollment_status = {}
-            if getattr(frame, "acquisition_mode", "single") == "stereo" and len(points) != 21:
-                unavailable_reason = (getattr(frame, "hand_depth_error", "") or frame.message or
-                                      "雙鏡頭尚未取得有效的 3D 手部關節，請依追蹤提示調整。")
-                enrollment_status["unavailable_reason"] = unavailable_reason
             self.gesture_buffer.observe(
                 frame.timestamp, points if enrollment_fresh and len(points) == 21 else None,
                 source="world", handedness=getattr(frame, "handedness", "unknown"),
-                **enrollment_status,
             )
             if self.gesture_candidate is not None and self.gesture_dialog is not None:
                 if enrollment_fresh and len(points) == 21:
@@ -2077,7 +1884,7 @@ class Window(QMainWindow):
                     self.gesture_dialog.set_match_status(
                         "與第一次記錄相符；保持這個手形，再按確認。" if comparison.is_gao else comparison.hint)
                 else:
-                    self.gesture_dialog.set_match_status(unavailable_reason or "等待新的完整手部畫面，再比對第一次記錄。")
+                    self.gesture_dialog.set_match_status("等待新的完整手部畫面，再比對第一次記錄。")
             self.refresh_gesture_capture(now)
             return
         if self.calibrating:
@@ -2258,7 +2065,6 @@ class Window(QMainWindow):
         if self.preview.image is not None:
             self.overlay.set_calibration_preview(self.preview.image)
         self.refresh_calibration_capture()
-
 
     def capture_calibration(self):
         if not self.calibrating:
@@ -2522,7 +2328,6 @@ class Window(QMainWindow):
         self.showNormal()
         self.activateWindow()
 
-
     def mode_changed(self, *_):
         self.return_to_control()
         self.test_button.setText(("開始演練", "讀取桌面並準備召喚")[self.mode.currentIndex()])
@@ -2740,13 +2545,28 @@ class Window(QMainWindow):
             self.tell(f"已復原 {receipt.original.name}。")
         self.job(lambda: restore_receipt(receipt), restored)
 
+    def change_language(self, *_):
+        language = self.language_combo.currentData()
+        if language == get_language():
+            return
+        try:
+            save_language(language, ROOT)
+        except OSError as exc:
+            self.tell(f"無法儲存語言設定：{exc}")
+            self.language_combo.blockSignals(True)
+            self.language_combo.setCurrentIndex(self.language_combo.findData(get_language()))
+            self.language_combo.blockSignals(False)
+            return
+        set_language(language)
+        self.controls_scroll.setMinimumWidth(410 if language == 'en' else 0)
+        self.controls_scroll.setMaximumWidth(440 if language == 'en' else 350)
+        self.setMinimumWidth(1100 if language == 'en' else 960)
+        if language == 'en' and self.width() < 1140:
+            self.resize(1140, self.height())
+        retranslate_all()
+        self.overlay.update()
+
     def closeEvent(self, event: QCloseEvent):
-        if self.stereo_dialog is not None:
-            self.stereo_dialog.reject()
-            if self.stereo_dialog is not None:
-                self.tell("雙鏡頭校正正在停止，請稍候再關閉。")
-                event.ignore()
-                return
         self.stop_sensors()
         for worker in (self.camera, self.speech, *self._retiring_pronunciation_workers):
             if worker and not worker.wait(2500):
@@ -2761,8 +2581,10 @@ class Window(QMainWindow):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--screenshot", type=Path, help="Render UI without opening sensors")
+    parser.add_argument("--language", choices=("en", "zh-TW"), help="Interface language (saved preference or system language by default)")
     args = parser.parse_args()
     app = QApplication(sys.argv[:1])
+    set_language(preferred_language(ROOT, args.language))
     app.setApplicationName("KON")
     app.setOrganizationName("KON Local")
     app.setFont(QFont("PingFang TC", 13))

@@ -3,7 +3,8 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont, QKeySequence, QShortcut
-from PySide6.QtWidgets import QDialog, QFrame, QHBoxLayout, QPushButton, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from .i18n import QDialog, QFrame, QPushButton
 
 from .gesture_calibration_dialog import _PreviewLabel, _label
 

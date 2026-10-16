@@ -25,17 +25,14 @@ def compatible_configuration(saved, current) -> bool:
     """Screen origin/name are informational; the model predicts local XY."""
     if not isinstance(saved, dict) or not isinstance(current, dict):
         return False
+    # Retired acquisition metadata must never be interpreted as a profile
+    # captured by the supported single-camera geometry.
+    if any(config.get("acquisition_mode", "single") != "single" for config in (saved, current)):
+        return False
     try:
         if (saved["eye"] != current["eye"] or saved["camera"] != current["camera"]
                 or list(saved["screen"]) != list(current["screen"])):
             return False
-        if saved.get("acquisition_mode", "single") != current.get("acquisition_mode", "single"):
-            return False
-        if current.get("acquisition_mode") == "stereo":
-            for key in ("stereo_calibration_id", "screen_plane_id", "secondary_camera"):
-                if ((not current.get(key) and key != "secondary_camera")
-                        or saved.get(key) != current.get(key)):
-                    return False
         left, right = float(saved["fov"]), float(current["fov"])
         if not all(math.isfinite(value) for value in (left, right)) or abs(left - right) > .005:
             return False
@@ -52,9 +49,6 @@ def _paths(root: Path, config):
     identity["fov"] = round(float(config["fov"]), 2)
     identity["machine_id"] = config.get("machine_id") or machine_key()
     identity["screen_serial"] = config.get("screen_serial") or ""
-    if config.get("acquisition_mode") == "stereo":
-        identity.update({key: config.get(key) for key in (
-            "acquisition_mode", "stereo_calibration_id", "screen_plane_id", "secondary_camera")})
     key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode()).hexdigest()[:24]
     folder = user_state_dir(root) / 'aim-calibrations'
     return folder / f"{key}.json", folder / f"{key}.meta.json"
@@ -68,17 +62,19 @@ def _write_json(path: Path, payload):
 
 
 def save_calibration(root: Path, model, config):
+    if not isinstance(config, dict) or config.get("acquisition_mode", "single") != "single":
+        raise ValueError("Only single-camera aiming profiles can be saved.")
     metadata = dict(config, machine_id=config.get("machine_id") or machine_key())
     profile, profile_meta = _paths(root, metadata)
     model.save(profile)
     _write_json(profile_meta, metadata)
-    # Preserve the established monocular profile when installing a stereo rig.
-    if metadata.get("acquisition_mode", "single") == "single":
-        model.save(user_state_dir(root) / 'calibration.json')
-        _write_json(user_state_dir(root) / 'calibration-meta.json', metadata)
+    model.save(user_state_dir(root) / 'calibration.json')
+    _write_json(user_state_dir(root) / 'calibration-meta.json', metadata)
 
 
 def load_calibration(root: Path, config):
+    if not isinstance(config, dict) or config.get("acquisition_mode", "single") != "single":
+        return None
     profile, profile_meta = _paths(root, config)
     candidates = [(profile, profile_meta),
                   (user_state_dir(root) / 'calibration.json', user_state_dir(root) / 'calibration-meta.json')]

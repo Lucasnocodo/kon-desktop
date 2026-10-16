@@ -20,28 +20,29 @@ __init__ aim_dwell app audio_devices calibration calibration_diagnostics
 calibration_history calibration_report calibration_store cursor_motion desktop
 effects geometry gesture_calibration gesture_calibration_dialog gesture_stability
 grid_selection hand_aim hand_aim_dialog overlay paths personal_calibration
-pronunciation pronunciation_dialog selection_settings speech stereo stereo_capture
-stereo_dialog stereo_live_diagnostics stereo_samples stereo_settings stereo_vision
-summon_sound vision
+pronunciation pronunciation_dialog selection_settings speech summon_sound vision
+i18n entrypoint package_check
 '''.split())
 ROOT_FILES = frozenset({
-    '.gitignore', 'README.md', 'RULES.md', 'LICENSE', 'NOTICE', 'UPSTREAMS.json',
+    '.gitignore', 'README.md', 'README.en.md', 'RULES.md', 'RULES.en.md', 'LICENSE', 'NOTICE', 'UPSTREAMS.json',
     'pyproject.toml', 'requirements.txt', 'requirements.lock.txt',
-    'models.expected.json', '啟動 KON.command', 'KON-checkerboard-25mm.png',
+    'requirements-build.txt', 'models.expected.json', '啟動 KON.command',
 })
 SCRIPTS = frozenset({
     'setup.sh', 'build-whisper.sh', 'download-models.py', 'prepare-fox-sprites.py',
     'prepare-smoke-sprites.py', 'preview-fox-animation.py', 'check-public-scope.py',
+    'build-macos.py', 'verify-macos.py', 'package-macos.py',
 })
-POLICY_FILES = {'scripts/check-public-scope.py', 'tests/test_public_scope.py'}
+POLICY_FILES = {'scripts/check-public-scope.py', 'tests/test_public_scope.py', 'packaging/kon-macos.spec'}
 EXCLUDED_NAME = re.compile(
-    r'portal|(?:^|_)pet(?:_|\.)|cat_pet|native_pet|photo|phone_import|calibration_voice|voxcpm|hayakawa',
+    r'portal|(?:^|_)pet(?:_|\.)|cat_pet|native_pet|photo|phone_import|calibration_voice|voxcpm|hayakawa|stereo',
     re.IGNORECASE,
 )
 EXCLUDED_CONTENT = re.compile(
     r'早川秋|hayakawa|voxcpm|calibration_voice|CalibrationVoice|PortalController|'
     r'portal_world_points|portal_gesture|傳送門|PetHuntController|PetClient|'
-    r'PhoneImportServer|photo_import|--native-pets|--pet-service|assets/cat-pet',
+    r'PhoneImportServer|photo_import|--native-pets|--pet-service|assets/cat-pet|'
+    r'雙鏡頭|雙視角|StereoCameraWorker|from \.stereo',
     re.IGNORECASE,
 )
 PRIVATE_PATH = re.compile(
@@ -64,6 +65,15 @@ def allowed_path(name: str) -> bool:
         return True
     if len(path.parts) == 2 and path.parts[0] == 'kon':
         return path.suffix == '.py' and path.stem in MODULES
+    if path.parts[:2] == ('kon', 'locales'):
+        return path.name in {'en.json', 'diagnostic-fields.json'} and len(path.parts) == 3
+    if path.parts and path.parts[0] == 'packaging':
+        if len(path.parts) == 2:
+            return path.name in {'kon-macos.spec', 'KON.icns', 'kon-icon.png', 'INSTALL-en.md', '開始使用-繁體中文.md'}
+        if len(path.parts) == 3 and path.parts[1] == 'licenses':
+            return path.suffix.lower() in {'.txt', '.md'}
+        return (len(path.parts) == 3 and path.parts[1] in {'en.lproj', 'zh_TW.lproj', 'zh-Hant.lproj', 'zh_Hant.lproj'}
+                and path.name == 'InfoPlist.strings')
     if len(path.parts) == 2 and path.parts[0] == 'scripts':
         return path.name in SCRIPTS
     if len(path.parts) == 2 and path.parts[0] == 'tests':
@@ -100,7 +110,7 @@ def check_files(root: Path, names: list[str]) -> list[str]:
             continue
         if path.stat().st_size > 20 * 1024 * 1024:
             findings.append(f'{name}: unexpectedly large source asset')
-        if path.suffix.lower() in {'.png', '.wav'}:
+        if path.suffix.lower() in {'.png', '.wav', '.icns'}:
             continue
         try:
             content = path.read_text(encoding='utf-8')

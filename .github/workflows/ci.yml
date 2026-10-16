@@ -40,8 +40,10 @@ jobs:
         run: .venv/bin/python -m pytest -q
       - name: Check recognizer with upstream sample audio
         run: .venv/bin/python -m kon.speech --self-test
-      - name: Render control room without sensors
-        run: .venv/bin/python -m kon.app --screenshot "$RUNNER_TEMP/kon-ui.png"
+      - name: Render both interface languages without sensors
+        run: |
+          .venv/bin/python -m kon.app --language en --screenshot "$RUNNER_TEMP/kon-ui-en.png"
+          .venv/bin/python -m kon.app --language zh-TW --screenshot "$RUNNER_TEMP/kon-ui-zh-TW.png"
       - name: Render virtual fox animation
         run: .venv/bin/python scripts/preview-fox-animation.py --output "$RUNNER_TEMP/kon-preview" --fps 12 --no-apng
       - name: Ensure verification did not change public source

@@ -5,6 +5,7 @@ asks the application to act AFTER that replica is visibly swallowed. The source
 head sheet is unchanged; the animation uses a separate twelve-pose sheet.
 """
 from __future__ import annotations
+from .i18n import literal, get_language
 
 from .paths import resource_root
 
@@ -14,8 +15,10 @@ from pathlib import Path
 import time
 
 from PySide6.QtCore import QEvent, QEasingCurve, QFileInfo, QPointF, QRect, QRectF, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QFont, QFontMetrics, QIcon, QImage, QKeySequence, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap, QRadialGradient, QRegion, QShortcut
-from PySide6.QtWidgets import QFileIconProvider, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtGui import QColor, QFont, QIcon, QImage, QKeySequence, QLinearGradient, QPainterPath, QPen, QPixmap, QRadialGradient, QRegion, QShortcut
+from .i18n import QFontMetrics, QPainter
+from PySide6.QtWidgets import QFileIconProvider, QHBoxLayout, QVBoxLayout
+from .i18n import QLabel, QPushButton, QWidget
 
 from .desktop import DesktopTarget
 from .effects import LIQUID_DROP_COUNT, LIQUID_DURATION, liquid_particles
@@ -1166,7 +1169,7 @@ class ScreenOverlay(QWidget):
 
     def _selection_cache_key(self):
         return (self.width(), self.height(), self.devicePixelRatioF(),
-                self.logicalDpiX(), self.logicalDpiY(), self.grid_enabled,
+                self.logicalDpiX(), self.logicalDpiY(), get_language(), self.grid_enabled,
                 self.grid_columns, self.grid_rows, self.practice,
                 tuple((target.id, target.name, target.center) for target in self.targets))
 
@@ -1215,7 +1218,7 @@ class ScreenOverlay(QWidget):
                 self._document(p, QPointF(x, y - 8), 1)
             p.setPen(QColor("#eee4d8"))
             p.setFont(QFont("PingFang TC", 10))
-            p.drawText(QRectF(x - 50, y + 30, 100, 24), Qt.AlignCenter, target.name)
+            p.drawText(QRectF(x - 50, y + 30, 100, 24), Qt.AlignCenter, literal(target.name))
 
     def _practice_grid_layout(self, target):
         """Keep a virtual document and its selection marks inside its grid cell."""
@@ -1257,7 +1260,7 @@ class ScreenOverlay(QWidget):
         arc_size = max(0., min(98., card.width() - 6., card.height() - 6.))
         progress = QRectF(0, 0, arc_size, arc_size)
         progress.moveCenter(card.center())
-        title = metrics.elidedText(str(target.name), Qt.ElideMiddle, max(0, int(label.width())))
+        title = metrics.elidedText(literal(target.name), Qt.ElideMiddle, max(0, int(label.width())))
         layout = _PracticeTileLayout(cell, card, icon, label, highlight, progress, scale, font, title)
         self._practice_layout_cache[key] = layout
         return layout
@@ -1276,7 +1279,7 @@ class ScreenOverlay(QWidget):
         p.setClipRect(layout.label, Qt.IntersectClip)
         p.setPen(QColor("#eee4d8"))
         p.setFont(layout.font)
-        p.drawText(layout.label, Qt.AlignCenter | Qt.TextSingleLine, layout.title)
+        p.drawText(layout.label, Qt.AlignCenter | Qt.TextSingleLine, literal(layout.title))
         p.restore()
 
     def _grid_cell_rect(self, cell):
@@ -1318,7 +1321,7 @@ class ScreenOverlay(QWidget):
             tail = speech + suffix
             name_width = width - metrics.horizontalAdvance(heading + tail)
             if name_width >= metrics.horizontalAdvance("…"):
-                first = heading + metrics.elidedText(prefix[len(heading):], Qt.ElideMiddle, name_width) + tail
+                first = heading + metrics.elidedText(literal(prefix[len(heading):]), Qt.ElideMiddle, name_width) + tail
             else:
                 first = metrics.elidedText(first, Qt.ElideMiddle, width)
         else:

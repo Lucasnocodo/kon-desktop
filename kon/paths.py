@@ -23,7 +23,7 @@ def state_root(project_root=None) -> Path:
     if is_bundled_root(project_root):
         override = os.environ.get("KON_DATA_DIR")
         return Path(override).expanduser().resolve() if override else (
-            Path.home() / "Library" / "Application Support" / "KON").resolve()
+            Path.home() / "Library" / "Application Support" / "KON Desktop").resolve()
     return Path(project_root or resource_root()).resolve() / ".kon"
 
 

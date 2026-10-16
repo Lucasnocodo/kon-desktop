@@ -3,10 +3,8 @@ from __future__ import annotations
 
 from PySide6.QtCore import QRect, Qt, QTimer, Signal
 from PySide6.QtGui import QFont, QImage, QKeySequence, QPixmap, QShortcut
-from PySide6.QtWidgets import (
-    QDialog, QFrame, QHBoxLayout, QLabel, QLayout, QProgressBar, QPushButton,
-    QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
-)
+from PySide6.QtWidgets import QHBoxLayout, QLayout, QProgressBar, QScrollArea, QSizePolicy, QVBoxLayout
+from .i18n import QDialog, QFrame, QLabel, QPushButton, QWidget
 
 from .gesture_calibration import STANDARD_GESTURE_ANGLES
 

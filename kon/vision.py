@@ -68,9 +68,6 @@ class TrackingFrame:
     # None preserves legacy/synthetic frames; camera frames always expose the
     # actual classifier evidence separately from the brief recognition grace.
     raw_pose_ok: bool | None = None
-    acquisition_mode: str = "single"
-    pair_skew_ms: float | None = None
-    secondary_source_size: tuple[int, int] | None = None
 
 
 def camera_matrix(width: int, height: int, fov_degrees: float) -> np.ndarray:
@@ -551,9 +548,6 @@ class CameraWorker(QThread):
     def _make_tracking(
         self, hand_result, face_result, width: int, height: int, timestamp: float,
         *, source_size: tuple[int, int] | None = None,
-        geometry_override: bool = False, metric_hand_points=None, metric_eye_point=None,
-        screen_plane=None, pair_skew_ms: float | None = None,
-        secondary_source_size: tuple[int, int] | None = None,
     ) -> TrackingFrame:
         with self._gesture_profile_lock:
             gesture_profile = self._gesture_profile
@@ -567,8 +561,6 @@ class CameraWorker(QThread):
                 "等待新的追蹤畫面；忽略重複、倒序或無效時間的影格",
                 depth_status="invalid_timestamp", source_size=source_size or (width, height),
                 inference_size=(width, height), aiming_mode=self.aim_mode, raw_pose_ok=False,
-                acquisition_mode="stereo" if geometry_override else "single",
-                pair_skew_ms=pair_skew_ms, secondary_source_size=secondary_source_size,
             )
         frame_size = (width, height, source_size)
         if frame_size != self._gesture_frame_size:
@@ -578,7 +570,7 @@ class CameraWorker(QThread):
         source_fps = 1.0 / source_gap if math.isfinite(source_gap) and source_gap > 0 else None
         self._last_source_timestamp = timestamp
         hand_mode = self.aim_mode == "hand"
-        intrinsics = None if hand_mode or geometry_override else camera_matrix(width, height, self.fov_degrees)
+        intrinsics = None if hand_mode else camera_matrix(width, height, self.fov_degrees)
         faces = () if hand_mode else face_result.face_landmarks
         face_points = _landmark_tuples(faces[0]) if faces else ()
         hands = hand_result.hand_landmarks
@@ -664,9 +656,7 @@ class CameraWorker(QThread):
             self._last_hand_timestamp = timestamp
             # Calibration is a geometry task. The strict command gesture is
             # still reported separately and remains required by the trigger.
-            if geometry_override:
-                metric = metric_hand_points
-            elif hand_mode:
+            if hand_mode:
                 metric = None
             elif index < len(world):
                 metric = estimate_hand_camera_points(
@@ -704,7 +694,7 @@ class CameraWorker(QThread):
                 hand_cursor=cursor, aiming_mode=self.aim_mode,
                 raw_pose_ok=raw_pose_ok,
             )
-        eye_sample = metric_eye_point if geometry_override else estimate_eye_xyz(
+        eye_sample = estimate_eye_xyz(
             face_points, width, height, intrinsics, self.dominant_eye, diagnostics=diagnostics,
         )
         if not faces:
@@ -713,8 +703,7 @@ class CameraWorker(QThread):
         aperture_xyz = self._hand_filter.update(aperture, timestamp)
         raw_hit = None
         if eye is not None and aperture_xyz is not None:
-            raw_hit = (screen_plane.ray_hit(eye, aperture_xyz) if geometry_override and screen_plane is not None
-                       else ray_screen_intersection(eye, aperture_xyz) if not geometry_override else None)
+            raw_hit = ray_screen_intersection(eye, aperture_xyz)
         if not hands:
             depth_status = "no_hand"
             message = diagnostics["hand_depth_error"]
@@ -723,7 +712,7 @@ class CameraWorker(QThread):
             message = diagnostics["eye_error"]
         elif eye_sample is None:
             depth_status = "eye_unusable"
-            message = diagnostics.get("eye_error", "雙鏡頭慣用眼定位無效；請讓兩台鏡頭都看見眼睛")
+            message = diagnostics.get("eye_error", "慣用眼定位無效；請讓眼睛清楚入鏡")
         elif aperture is None:
             depth_status = hand_stage
             message = diagnostics.get("hand_depth_error", "手部深度無法估計，請讓整隻手清楚入鏡")
@@ -745,7 +734,7 @@ class CameraWorker(QThread):
                 message = "眼睛與手孔的距離或射線不合理；請把手往螢幕移並面向鏡頭"
         else:
             depth_status = "ready"
-            message = (("雙鏡頭三維瞄準已建立" if geometry_override else "眼睛 → 手孔射線已建立；深度為估計值") if pose_ok else
+            message = ("眼睛 → 手孔射線已建立；深度為估計值" if pose_ok else
                        f"瞄準射線已建立；{gesture_hint}（校正可記錄）")
         return TrackingFrame(
             timestamp, hand_points, face_points, score, pose_ok, eye, aperture_xyz, raw_hit, message,
@@ -758,8 +747,6 @@ class CameraWorker(QThread):
             hand_world_points=hand_world_points, handedness=handedness,
             aiming_mode=self.aim_mode,
             raw_pose_ok=raw_pose_ok,
-            acquisition_mode="stereo" if geometry_override else "single",
-            pair_skew_ms=pair_skew_ms, secondary_source_size=secondary_source_size,
         )
 
     @staticmethod

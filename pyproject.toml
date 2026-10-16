@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kon-desktop"
-version = "0.1.1"
+version = "0.2.0"
 description = "Gesture-aimed fox summoning and local voice triggers for the macOS desktop"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -14,7 +14,7 @@ dependencies = [
     "numpy>=1.26,<3",
     "opencv-contrib-python>=4.11,<5",
     "mediapipe>=0.10.30,<2",
-    "PySide6-Essentials>=6.8,<7",
+    "PySide6-Essentials>=6.9.3,<6.10",
     "pyobjc-framework-Cocoa>=11,<13",
     "sounddevice>=0.5,<1",
     "certifi>=2025",
@@ -32,6 +32,9 @@ kon = "kon.app:main"
 
 [tool.setuptools]
 packages = ["kon"]
+
+[tool.setuptools.package-data]
+kon = ["locales/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

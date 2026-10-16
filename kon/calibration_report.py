@@ -11,10 +11,8 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor, QFont
-from PySide6.QtWidgets import (
-    QAbstractItemView, QDialog, QFrame, QHBoxLayout, QHeaderView, QLabel,
-    QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QVBoxLayout,
-)
+from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QHeaderView, QVBoxLayout
+from .i18n import QDialog, QFrame, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget
 
 if TYPE_CHECKING:
     from .calibration_diagnostics import FitDiagnostics

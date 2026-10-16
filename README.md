@@ -1,12 +1,20 @@
 # KON · 靈狐桌面召喚
 
+繁體中文 · [English](README.en.md)
+
 Apple Silicon macOS 上的 Python 原型：用手圈瞄準檔案，維持手勢完成鎖定，再發出短音或咒語，召喚狐狸吞下目標。支援虛擬檔案演練、桌面一般檔案移至垃圾桶與復原、個人手勢／瞄準校正，以及減少動態效果。
 
-首次發布提供原始碼與安裝流程，沒有獨立 App 安裝包。**雙鏡頭瞄準為實驗功能，尚未完成實機校正與移動中精度驗證。** 單鏡頭瞄準、個人觸發音與真實 Finder 的完整端到端操作也仍需使用者在自己的設備驗證；自動化測試主要使用合成追蹤資料、離線音訊與模擬 Finder。
+提供內建繁體中文／English 切換的獨立 macOS App，以及可重建的原始碼。只使用一台鏡頭，支援眼睛穿過手圈與手圈移動兩種瞄準方式。個人觸發音與真實 Finder 的完整端到端操作仍需在自己的設備確認；自動化測試使用合成追蹤、離線音訊與模擬 Finder。
 
-## 安裝與啟動
+## 下載 macOS App（不需 Python）
 
-需要 **Apple Silicon Mac（macOS 14+）、Python 3.12+、Git 與 Xcode Command Line Tools**。macOS 14 是固定版 NumPy／PySide6 套件的最低需求，並不表示已完成該系統版本的實機操作驗證。安裝前確認 `python3 --version` 至少為 3.12；未安裝 Apple 編譯工具時先執行 `xcode-select --install`。首次安裝需連線下載 Python 套件、模型與固定版本的 whisper.cpp。
+從 [GitHub Releases](https://github.com/Lucasnocodo/kon-desktop/releases/latest) 下載 `KON-0.2.0-macOS-arm64.zip`，解壓縮後將 `KON.app` 拖到「應用程式」。支援 Apple Silicon；系統最低版本以發行包內的驗證報告為準。App 內含 Python、模型及 CPU Whisper，不需另裝 Python、Xcode 或下載模型。
+
+此版採 ad-hoc 簽章，未使用 Developer ID 簽署，亦未經 Apple 公證。第一次開啟若被 macOS 阻擋，確認下載來源與 `SHA256SUMS` 後，依「系統設定 → 隱私權與安全性」顯示的「仍要打開」流程開啟。右上角 Language 可立即切換 English／繁體中文並保存選擇。英文介面與辨識咒語使用的語言可分別設定。
+
+## 從原始碼安裝與啟動
+
+需要 **Apple Silicon Mac（macOS 14+）、Python 3.12+、Git 與 Xcode Command Line Tools**。macOS 14 是固定依賴的最低需求，並不表示已完成該系統版本的實機操作驗證。安裝前確認 `python3 --version` 至少為 3.12；未安裝 Apple 編譯工具時先執行 `xcode-select --install`。首次安裝需連線下載 Python 套件、模型與固定版本的 whisper.cpp。
 
 ```sh
 git clone https://github.com/Lucasnocodo/kon-desktop.git
@@ -20,7 +28,7 @@ sh scripts/setup.sh
 
 `setup.sh` 建立獨立 `.venv`，依 `requirements.lock.txt` 安裝固定版本，以 editable 方式安裝本專案，下載三個模型並編譯 CPU Whisper CLI。Tactyle Touch 由固定 commit 的 Git dependency 安裝；whisper.cpp commit 見 [UPSTREAMS.json](UPSTREAMS.json)。模型不隨原始碼發布；下載與既有檔案每次都會核對 [models.expected.json](models.expected.json) 中提交的大小與 SHA-256，不符便停止。網路中斷可重跑 setup；若既有模型損壞，先移除錯誤檔再重試。既有 whisper.cpp 版本或追蹤內容有變更時 setup 會停止，不會覆寫它。
 
-本版資源由原始碼目錄載入，請保留完整 checkout。只安裝 Python 程式碼的 wheel 不包含模型、素材或 whisper.cpp，不是本版的分發方式。
+原始碼執行時由 checkout 載入資源，請保留完整目錄；若只想使用，請下載上方獨立 App。單獨的 Python wheel 不包含完整資源。
 
 ## 第一次操作
 
@@ -33,13 +41,9 @@ sh scripts/setup.sh
 
 選單列 KON 圖示可返回控制台或暫停鏡頭／麥克風；動畫吞下目標前取消便不移檔。鎖定計算、手勢取樣與檔案重驗的完整規則見 [RULES.md](RULES.md)。
 
-## 雙鏡頭與資料
+## 本機資料
 
-眼睛模式可選兩台不同鏡頭，先校正雙機與量測螢幕平面，再做雙鏡頭專用九點瞄準。棋盤為 9 × 6 內角點、10 × 7 格，預設 25 mm／格；可由對話框儲存列印圖，也提供 [KON-checkerboard-25mm.png](KON-checkerboard-25mm.png)。以實際大小列印並實測格長，固定兩機位置、方向、縮放及裁切，收集至少 15 組不同角度的新畫面。兩路以電腦接收時間配對，容許 20 ms；這不是同步曝光。任一視角失效或幾何品質不足會暫停瞄準，不會補用單鏡頭深度。
-
-校正 RMS 是棋盤重投影誤差，不能當成實際瞄準精度。螢幕尺寸、鏡頭偏移與角度需自己量測確認；移動支架、更換來源或改變縮放、裁切後必須重做校正，即使虛擬鏡頭識別碼相同也一樣。詳細步驟與限制見 [RULES.md](RULES.md#雙鏡頭與深度定位)。
-
-設定與個人數值存於專案 `.kon/`，不納入 Git。影像、手勢與音訊在本機處理；不保存鏡頭畫面、影片或麥克風錄音。Whisper 只在咒語文字模式處理短片段，暫存 WAV 完成後刪除；一般追蹤期間麥克風持續運作，只有有效手勢及已鎖定目標才啟用召喚觸發。預設自動麥克風選擇會排除可辨識的 iPhone／iPad 與虛擬音訊裝置；也可明確選擇自己的實體輸入。
+App 的設定與個人數值存於 `~/Library/Application Support/KON Desktop/`；原始碼版存於專案 `.kon/`，不納入 Git。影像、手勢與音訊在本機處理；不保存鏡頭畫面、影片或麥克風錄音。Whisper 只在咒語文字模式處理短片段，暫存 WAV 完成後刪除；一般追蹤期間麥克風持續運作，只有有效手勢及已鎖定目標才啟用召喚觸發。預設自動麥克風選擇會排除可辨識的 iPhone／iPad 與虛擬音訊裝置；也可明確選擇自己的實體輸入。
 
 ## 開發與驗證
 
@@ -56,9 +60,20 @@ QT_QPA_PLATFORM=offscreen .venv/bin/python -m kon.app --screenshot output/kon-ui
 .venv/bin/python scripts/prepare-smoke-sprites.py
 ```
 
-預覽輸出在忽略的 `output/`。`kon.speech --self-test` 使用 whisper.cpp 的公開音訊範例，不開麥克風；需先完成 setup。macOS CI 執行測試及公開內容檢查。測試通過不代表使用者發音辨識率、雙鏡頭精度或 Finder「堆疊」／Stage Manager 已通過實機驗證。
+預覽輸出在忽略的 `output/`。`kon.speech --self-test` 使用 whisper.cpp 的公開音訊範例，不開麥克風；需先完成 setup。macOS CI 執行測試及公開內容檢查。測試通過不代表使用者發音辨識率或 Finder「堆疊」／Stage Manager 已通過實機驗證。
 
 依賴範圍及開發工具定義於 `pyproject.toml`；若要自行更新套件，可在獨立環境執行 `python -m pip install -r requirements.txt`。正式重現本版請使用 setup 的固定版本。重建 Whisper 可執行 `sh scripts/build-whisper.sh`，`KON_BUILD_JOBS` 可設定正整數的編譯平行數。
+
+## 重建獨立 App
+
+```sh
+.venv/bin/python -m pip install -r requirements-build.txt
+.venv/bin/python scripts/build-macos.py
+.venv/bin/python scripts/verify-macos.py
+.venv/bin/python scripts/package-macos.py
+```
+
+打包只選取執行所需的狐狸影像、非語音音效、三個模型、離線辨識器、翻譯與授權聲明；個人資料及開發輸出不會納入。封裝檢查不開鏡頭或麥克風、不操作真實桌面檔案。
 
 ## 授權與素材
 

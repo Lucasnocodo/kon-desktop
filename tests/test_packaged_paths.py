@@ -40,5 +40,5 @@ def test_explicit_dev_project_keeps_existing_state_layout(bundle, tmp_path):
 
 def test_default_packaged_data_location_does_not_depend_on_bundle_path(bundle, monkeypatch):
     monkeypatch.delenv("KON_DATA_DIR")
-    expected = Path.home() / "Library/Application Support/KON"
+    expected = Path.home() / "Library/Application Support/KON Desktop"
     assert paths.state_root() == expected.resolve()

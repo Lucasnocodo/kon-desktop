@@ -3,10 +3,9 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QFont
-from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QFrame, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
-)
+from PySide6.QtWidgets import QHBoxLayout, QScrollArea, QSizePolicy, QVBoxLayout
+from .i18n import QCheckBox, QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QWidget
+from .i18n import literal
 
 from .speech import normalize_utterance, parse_trigger_phrases
 
@@ -270,7 +269,7 @@ class PronunciationDialog(QDialog):
             self._clear_candidates()
             if len(self.samples) == 3:
                 for candidate in dict.fromkeys(self.samples):
-                    checkbox = QCheckBox(candidate, self.candidates_frame)
+                    checkbox = QCheckBox(literal(candidate), self.candidates_frame)
                     checkbox.setAccessibleName(f"使用辨識結果：{candidate}")
                     checkbox.toggled.connect(self._selection_changed)
                     self.candidate_checkboxes.append(checkbox)

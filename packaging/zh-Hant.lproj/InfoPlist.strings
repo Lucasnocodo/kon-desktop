@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "KON";
+"NSCameraUsageDescription" = "KON 只在你啟動感測器後使用鏡頭辨識手勢與瞄準；影像在本機處理。";
+"NSMicrophoneUsageDescription" = "KON 只在你啟動感測器或發音測試後使用麥克風，偵測短音或在本機辨識咒語。";
+"NSAppleEventsUsageDescription" = "桌面模式讀取 Finder 圖示位置，只在靈狐吞下你選定的檔案後，將該檔案移至垃圾桶。";

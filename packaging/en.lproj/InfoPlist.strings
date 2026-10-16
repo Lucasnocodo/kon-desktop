@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "KON";
+"NSCameraUsageDescription" = "KON uses the camera only after you start sensors, to recognize your hand and aim. Images are processed locally.";
+"NSMicrophoneUsageDescription" = "KON uses the microphone only after you start sensors or a voice test, to detect a short sound or recognize a local phrase.";
+"NSAppleEventsUsageDescription" = "Desktop mode reads Finder icon positions and moves only the file you select to Trash after the fox swallows it.";

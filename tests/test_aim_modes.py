@@ -263,3 +263,50 @@ def test_both_modes_apply_strong_pixel_filter_after_their_own_mapping(environmen
     assert calls[0][1] == pytest.approx(expected)
     assert calls[0][2] == (window.overlay.width(), window.overlay.height())
     assert window.overlay.point == pytest.approx((window.overlay.width() * .42, window.overlay.height() * .61))
+
+
+def test_retired_camera_settings_fall_back_to_saved_single_camera_profile(environment, tmp_path):
+    make, _ = environment
+    original = make(aim_mode="eye_ray")
+    original.eye.setCurrentIndex(1)
+    original.camera_index.setValue(3)
+    original.fov.setValue(75)
+    config = original.config()
+    mapping = identity_eye_calibration()
+    save_calibration(tmp_path, mapping, config)
+    state = tmp_path / ".kon"
+    profile_bytes = {path: path.read_bytes() for path in state.rglob("*calibration*.json")}
+    retired = {"acquisition_mode": "stereo", "secondary_camera": 8,
+               "eye": "right", "camera": 7, "fov": 90}
+    (state / "camera-settings.json").write_text(json.dumps(retired))
+    (state / "preferences.json").write_text(json.dumps({"aim_mode": "eye_ray", "camera_settings": retired}))
+    restored = make()
+    assert restored.config() == config
+    assert restored.calibration.predict((.25, .5)) == pytest.approx(mapping.predict((.25, .5)))
+    restored.toggle_sensors()
+    assert restored.camera.args[:3] == (3, 75, "left")
+    saved = json.loads((state / "camera-settings.json").read_text())
+    assert saved == {"eye": "left", "camera": 3, "fov": 75}
+    for path, data in profile_bytes.items():
+        assert path.read_bytes() == data
+
+
+@pytest.mark.parametrize("mode", ["eye_ray", "hand"])
+@pytest.mark.parametrize("location", ["camera-settings.json", "preferences.json"])
+def test_retired_preferences_do_not_disable_either_single_camera_mode(environment, tmp_path, mode, location):
+    state = preferences_path(tmp_path).parent
+    retired = {"acquisition_mode": "stereo", "secondary_camera": 1,
+               "eye": "left", "camera": 9, "fov": 95}
+    payload = {"camera_settings": retired} if location == "preferences.json" else retired
+    (state / location).write_text(json.dumps(payload))
+    make, _ = environment
+    window = make(aim_mode=mode)
+    assert window.camera_index.value() == 0 and window.eye.currentIndex() == 0
+    assert window.fov.value() == 60
+    window.toggle_sensors()
+    assert window.running and window.camera.isRunning() and window.speech.isRunning()
+    assert window.camera.args == (0, 60, "right")
+    assert window.camera.kwargs["aim_mode"] == mode
+    assert "acquisition_mode" not in window.config()
+    window.stop_sensors()
+    assert not window.camera.isRunning() and not window.speech.isRunning()
