@@ -14,7 +14,7 @@ Apple Silicon macOS 上的 Python 原型：用手圈瞄準檔案，維持手勢�
 
 ## 從原始碼安裝與啟動
 
-需要 **Apple Silicon Mac（macOS 14+）、Python 3.12+、Git 與 Xcode Command Line Tools**。macOS 14 是固定依賴的最低需求，並不表示已完成該系統版本的實機操作驗證。安裝前確認 `python3 --version` 至少為 3.12；未安裝 Apple 編譯工具時先執行 `xcode-select --install`。首次安裝需連線下載 Python 套件、模型與固定版本的 whisper.cpp。
+需要 **Apple Silicon Mac（macOS 14+）、Python 3.12 或 3.13、Git 與 Xcode Command Line Tools**。macOS 14 是固定依賴的最低需求，並不表示已完成該系統版本的實機操作驗證。固定版 Qt 不支援 Python 3.14 以上；安裝前確認 `python3 --version` 為 3.12 或 3.13。若已安裝的支援版本不是預設 `python3`，請改用 `KON_PYTHON=python3.13 sh scripts/setup.sh` 指定它。未安裝 Apple 編譯工具時先執行 `xcode-select --install`。首次安裝需連線下載 Python 套件、模型與固定版本的 whisper.cpp。
 
 ```sh
 git clone https://github.com/Lucasnocodo/kon-desktop.git

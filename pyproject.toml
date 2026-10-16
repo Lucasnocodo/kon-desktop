@@ -7,7 +7,7 @@ name = "kon-desktop"
 version = "0.2.0"
 description = "Gesture-aimed fox summoning and local voice triggers for the macOS desktop"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 license = "MIT"
 authors = [{name = "KON contributors"}]
 dependencies = [

@@ -36,7 +36,7 @@ The app stores settings and numeric calibration data in `~/Library/Application S
 
 ## Run or build from source
 
-Source development needs **Python 3.12+, Git, and Xcode Command Line Tools** on an Apple Silicon Mac running macOS 14+. Check `python3 --version`; install Apple's compiler tools with `xcode-select --install` if needed.
+Source development needs **Python 3.12 or 3.13, Git, and Xcode Command Line Tools** on an Apple Silicon Mac running macOS 14+. The pinned Qt dependencies do not support Python 3.14 or later. Check `python3 --version`; if your supported interpreter is not the default `python3`, use `KON_PYTHON=python3.13 sh scripts/setup.sh`. Install Apple's compiler tools with `xcode-select --install` if needed.
 
 ```sh
 git clone https://github.com/Lucasnocodo/kon-desktop.git

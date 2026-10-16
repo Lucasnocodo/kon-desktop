@@ -6,8 +6,15 @@ if [ "$(uname -s)" != Darwin ] || [ "$(uname -m)" != arm64 ]; then
     echo 'This setup targets Apple Silicon macOS.' >&2
     exit 1
 fi
-if ! python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)'; then
-    echo 'Python 3.12+ is required.' >&2
+PYTHON_BIN=${KON_PYTHON:-python3}
+SUPPORTED_PYTHON='import sys; raise SystemExit(0 if (3, 12) <= sys.version_info[:2] < (3, 14) else 1)'
+if [ -x .venv/bin/python ]; then
+    if ! .venv/bin/python -c "$SUPPORTED_PYTHON"; then
+        echo 'The existing .venv must use Python 3.12 or 3.13. Remove or rename .venv, then rerun setup with a supported interpreter, for example: KON_PYTHON=python3.13 sh scripts/setup.sh' >&2
+        exit 1
+    fi
+elif ! command -v "$PYTHON_BIN" >/dev/null 2>&1 || ! "$PYTHON_BIN" -c "$SUPPORTED_PYTHON"; then
+    echo 'Python 3.12 or 3.13 is required; Python 3.14+ is not supported by the pinned Qt dependencies. Install a supported interpreter and run: KON_PYTHON=python3.13 sh scripts/setup.sh' >&2
     exit 1
 fi
 WHISPER_COMMIT=0c7be696371069e0baa2515ed7aa08d5a5473aa6
@@ -23,7 +30,7 @@ if [ ! -d vendor/whisper.cpp/.git ] ||
     exit 1
 fi
 if [ ! -x .venv/bin/python ]; then
-    python3 -m venv .venv
+    "$PYTHON_BIN" -m venv .venv
 fi
 .venv/bin/python -m pip install -r requirements.lock.txt
 .venv/bin/python -m pip install --no-deps -e .
