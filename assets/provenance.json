@@ -1,0 +1,174 @@
+{
+  "notice": "NOTICE.md",
+  "path_base": "assets/",
+  "assets": [
+    {
+      "asset": "fox-heads",
+      "source_method": "imagegen; based on a user-supplied visual reference, not included",
+      "rights": "Excluded from KON code MIT license; no separate open media license established. See NOTICE.md.",
+      "files": [
+        {
+          "path": "fox-heads.png",
+          "sha256": "5224d6b6cad3052fe04df4f3d52d2888e0920774b76e90e99b0f569da81e59eb"
+        }
+      ]
+    },
+    {
+      "asset": "fox-dash",
+      "source_method": "imagegen; one 12-frame generated sheet, normalized by scripts/prepare-fox-sprites.py",
+      "rights": "Excluded from KON code MIT license; no separate open media license established. See NOTICE.md.",
+      "files": [
+        {
+          "path": "fox-dash/fox-dash-sheet.png",
+          "sha256": "86bcdba8625ca8c074b33cf20ad405ea442adf8ca4f5f812a9a647f2c0fc0453"
+        },
+        {
+          "path": "fox-dash/frames/01.png",
+          "sha256": "df891b29085874bfc42c8c0b7a4c40f29099892cb0422a424a7ce4e772a1b4e7"
+        },
+        {
+          "path": "fox-dash/frames/02.png",
+          "sha256": "921b3d816a4849bf31ed5c7f4e1ffc367a8bf52a47fc8ef33ce7fee39beaae34"
+        },
+        {
+          "path": "fox-dash/frames/03.png",
+          "sha256": "3545f52973efc6539726155cead13c022008490c0869c6b323a6348859c96fa1"
+        },
+        {
+          "path": "fox-dash/frames/04.png",
+          "sha256": "2ce0ecab5ad28b72a46189e7ee818699c1868cd505ad43d492cd99979906e05c"
+        },
+        {
+          "path": "fox-dash/frames/05.png",
+          "sha256": "f467900db38878cd4f6a13064b3d1b588a72439a23948a763862602bb1756a55"
+        },
+        {
+          "path": "fox-dash/frames/06.png",
+          "sha256": "a04df3b7c290795477ea158121569598d3dadf98af5d07dd47fcdb65faa43677"
+        },
+        {
+          "path": "fox-dash/frames/07.png",
+          "sha256": "e46b3ae5fdf9180e41e1df46518432a8b595aaa472a9360432307b12e55458e7"
+        },
+        {
+          "path": "fox-dash/frames/08.png",
+          "sha256": "f92119880c18dc23514629e3e7dd3c4a963fb58f606991235b546cc556b769d9"
+        },
+        {
+          "path": "fox-dash/frames/09.png",
+          "sha256": "0028761ce9c1fec67f29bb525694831990d1c547f7a59548bf79b495d4b74015"
+        },
+        {
+          "path": "fox-dash/frames/10.png",
+          "sha256": "4fffdcbd734939953302fb36da36c9e81a5a40f2dac51aa36635eb42082919ec"
+        },
+        {
+          "path": "fox-dash/frames/11.png",
+          "sha256": "d2455e7e665a478a6b8bfc676aed3af04eb546480e14dae94e7efb31152085ff"
+        },
+        {
+          "path": "fox-dash/frames/12.png",
+          "sha256": "107ea130cfdfecd5da7b4089ec4c81740914a279d4579022ec2f5d02a3b94a4a"
+        },
+        {
+          "path": "fox-dash/manifest.json",
+          "sha256": "b0928103a29bb723634ccc4cb912df0c7fdf079d790f95534496299123894999"
+        },
+        {
+          "path": "fox-dash/source/generated-grid.png",
+          "sha256": "b8e9a2094155f6aebe5f88cd93148a207973ca04e42fcb32eb5e15210f5c0464"
+        },
+        {
+          "path": "fox-dash/source/prompt.txt",
+          "sha256": "109e5a6bf61e54389c811e951436b1ea1712b91f0aaee6d5fc0397750b915aea"
+        }
+      ]
+    },
+    {
+      "asset": "fox-smoke",
+      "source_method": "imagegen; one 12-frame generated sheet, equal-cell extraction by scripts/prepare-smoke-sprites.py",
+      "rights": "Excluded from KON code MIT license; no separate open media license established. See NOTICE.md.",
+      "files": [
+        {
+          "path": "fox-smoke/fox-smoke-sheet.png",
+          "sha256": "2ffa3b39e35b2bf3ec11fe92d38434b405ab070e95598bbb57e06d99aa2960ac"
+        },
+        {
+          "path": "fox-smoke/frames/01.png",
+          "sha256": "43eaa51957f66fd5964ac722039a9101b98f3ce8e1edb6ec54ace13a5df9c738"
+        },
+        {
+          "path": "fox-smoke/frames/02.png",
+          "sha256": "ee87cdb80bf4bea3995cbcf94586d392cd7692729f0a2c2df949c26e6f70b889"
+        },
+        {
+          "path": "fox-smoke/frames/03.png",
+          "sha256": "a97d3280752159043e18ab2303d3154f4639e893655eabb48c5c92b4b07a159f"
+        },
+        {
+          "path": "fox-smoke/frames/04.png",
+          "sha256": "b370c8d12f82250188c172b8f769e046d7a55fb7d6f17e02e9ac1fdbb6c9a6a8"
+        },
+        {
+          "path": "fox-smoke/frames/05.png",
+          "sha256": "8b3fc20f6565c48c4386a7878df07398e66de4d77326dd92c8ea92872c539efb"
+        },
+        {
+          "path": "fox-smoke/frames/06.png",
+          "sha256": "010607351288b676788e6cba9287d5eb7955fb1a92eaabb9b7883f2a4f848739"
+        },
+        {
+          "path": "fox-smoke/frames/07.png",
+          "sha256": "92587f77de558ceadcf7ace4f23647e7ff50f52a604b13c40c881b2f2e82eefd"
+        },
+        {
+          "path": "fox-smoke/frames/08.png",
+          "sha256": "308a6580d2d4e1feb3c86940adae0b28c63ef2218a3e1134959a8a4428936c61"
+        },
+        {
+          "path": "fox-smoke/frames/09.png",
+          "sha256": "d5569f01cab89d32a3b7365617593090374875ae066a04118907934cd8b236ea"
+        },
+        {
+          "path": "fox-smoke/frames/10.png",
+          "sha256": "98e7c7971524c3fc2978b4af43b66bdd73f252c77079f138b8fb62c841073f85"
+        },
+        {
+          "path": "fox-smoke/frames/11.png",
+          "sha256": "56d8400ec4d3855a2a2075cb8c78c9c78aab9dd4ed2d149029fc5019f93280b8"
+        },
+        {
+          "path": "fox-smoke/frames/12.png",
+          "sha256": "8382414cb122c2748acb48bad26c4245a25c72dfabe1bd6a45a75ec6458da626"
+        },
+        {
+          "path": "fox-smoke/manifest.json",
+          "sha256": "82789a8d9e57b38bd7e7d08797645312e484bd389acdead72b81e12c6fdbf42c"
+        },
+        {
+          "path": "fox-smoke/source/generated-grid.png",
+          "sha256": "249e41fe4356eb3661ff6d250de3710abeac21d945a6a195d6474dbac58885a8"
+        },
+        {
+          "path": "fox-smoke/source/prompt.txt",
+          "sha256": "dce155c8f78e5b17c5ee6a4f1323cb0c90ac902a42a27d827afba5522f94da25"
+        }
+      ]
+    },
+    {
+      "asset": "summon-sfx",
+      "source_method": "Original project local synthesis; non-speech sound effect",
+      "rights": "Excluded from KON code MIT license; no separate open media license established. See NOTICE.md.",
+      "files": [
+        {
+          "path": "sfx/yaohu-short.wav",
+          "sha256": "debd8fbf6adbd9402bc14e41d2a5b15af36a61a8ba20c49d181c8800397f8c67"
+        },
+        {
+          "path": "sfx/manifest.json",
+          "sha256": "ae8f8c3f2ef4ee0e57361ab3ce2b9badfe4bbb6164ff790b0f045d162f249eba"
+        }
+      ]
+    }
+  ]
+}

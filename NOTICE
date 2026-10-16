@@ -1,0 +1,44 @@
+KON Desktop
+Copyright (c) 2026 KON contributors
+
+The MIT LICENSE covers original KON source code, scripts and documentation.
+It does not relicense third-party software, downloaded model weights, or
+image/audio media under assets/. See assets/NOTICE.md and assets/provenance.json
+for the media's source and rights boundaries. No rights in an underlying
+character or supplied visual reference are asserted by the code license.
+
+Tactyle Touch
+https://github.com/gokulmc/tactyle-touch
+Pinned commit: 653657f72c698b58ca44cda335033b560e077cba
+Copyright 2026 gokulmc
+KON imports touch.geometry.hand_scale. Upstream code is Apache-2.0 licensed.
+The unmodified upstream license is retained in
+THIRD_PARTY_LICENSES/tactyle-touch-Apache-2.0.txt.
+
+whisper.cpp
+https://github.com/ggml-org/whisper.cpp
+Pinned commit: 0c7be696371069e0baa2515ed7aa08d5a5473aa6
+Copyright (c) 2023-2026 The ggml authors
+The unmodified MIT license is retained in
+THIRD_PARTY_LICENSES/whisper.cpp-MIT.txt.
+Source is downloaded and built locally; it is not committed here.
+
+Other Python dependencies are installed from their distributions, rather than
+copied into this repository. Their own licenses and notices continue to apply:
+MediaPipe (https://github.com/google-ai-edge/mediapipe),
+OpenCV (https://github.com/opencv/opencv),
+NumPy (https://github.com/numpy/numpy),
+PySide6/Qt for Python (https://doc.qt.io/qtforpython-6/licenses.html),
+PyObjC (https://github.com/ronaldoussoren/pyobjc),
+sounddevice/PortAudio (https://python-sounddevice.readthedocs.io/),
+and the transitive/build/test dependencies recorded in requirements.lock.txt.
+In particular, KON's MIT license does not replace the applicable Qt/PySide
+licensing terms or grant a license to redistribute a bundled Qt application.
+
+Downloaded model weights are not part of the source distribution. Fixed
+expected SHA-256 values and download locations are in models.expected.json.
+See the upstream MediaPipe model documentation and Whisper model repository:
+https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
+https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker
+https://huggingface.co/ggerganov/whisper.cpp
+https://github.com/openai/whisper/blob/main/LICENSE

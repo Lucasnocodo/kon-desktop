@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kon-desktop"
+version = "0.1.1"
+description = "Gesture-aimed fox summoning and local voice triggers for the macOS desktop"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [{name = "KON contributors"}]
+dependencies = [
+    "numpy>=1.26,<3",
+    "opencv-contrib-python>=4.11,<5",
+    "mediapipe>=0.10.30,<2",
+    "PySide6-Essentials>=6.8,<7",
+    "pyobjc-framework-Cocoa>=11,<13",
+    "sounddevice>=0.5,<1",
+    "certifi>=2025",
+    "tactyle-touch-engine @ git+https://github.com/gokulmc/tactyle-touch.git@653657f72c698b58ca44cda335033b560e077cba#subdirectory=engine",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "pillow>=11,<13", "cmake>=3.28,<5", "ninja>=1.11,<2"]
+
+[project.urls]
+Repository = "https://github.com/Lucasnocodo/kon-desktop"
+
+[project.scripts]
+kon = "kon.app:main"
+
+[tool.setuptools]
+packages = ["kon"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

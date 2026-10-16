@@ -1,0 +1,48 @@
+name: macOS source checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: source-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-15
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    env:
+      QT_QPA_PLATFORM: offscreen
+      MPLCONFIGDIR: /tmp/kon-matplotlib
+      PYTHONDONTWRITEBYTECODE: '1'
+      KON_BUILD_JOBS: '3'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: requirements.lock.txt
+      - name: Check public source boundary
+        run: python scripts/check-public-scope.py
+      - name: Install source, verify models and build offline recognizer
+        run: sh scripts/setup.sh
+      - name: Test without cameras, microphone capture or real Finder actions
+        run: .venv/bin/python -m pytest -q
+      - name: Check recognizer with upstream sample audio
+        run: .venv/bin/python -m kon.speech --self-test
+      - name: Render control room without sensors
+        run: .venv/bin/python -m kon.app --screenshot "$RUNNER_TEMP/kon-ui.png"
+      - name: Render virtual fox animation
+        run: .venv/bin/python scripts/preview-fox-animation.py --output "$RUNNER_TEMP/kon-preview" --fps 12 --no-apng
+      - name: Ensure verification did not change public source
+        run: git diff --exit-code

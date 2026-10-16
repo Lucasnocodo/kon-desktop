@@ -1,0 +1,859 @@
+{
+  "frames": 12,
+  "columns": 4,
+  "rows": 3,
+  "frame_size": 512,
+  "pivot_uv": [
+    0.5,
+    0.62
+  ],
+  "source": "assets/fox-smoke/source/generated-grid.png",
+  "source_dims": [
+    1448,
+    1086
+  ],
+  "source_sha256": "249e41fe4356eb3661ff6d250de3710abeac21d945a6a195d6474dbac58885a8",
+  "source_cell_size": [
+    362,
+    362
+  ],
+  "source_generation": {
+    "single_pass": true,
+    "passes": 1,
+    "description": "All 12 frames generated together in one registered sheet"
+  },
+  "preserved_registration": true,
+  "extraction": "Exact equal 4x3 cells; full-cell uniform LANCZOS resize",
+  "shared_scale": 1.4143646408839778,
+  "alpha_validation": "Real RGBA, nonempty cells, transparent background; padding retained for visual inspection",
+  "frame_records": [
+    {
+      "frame": 1,
+      "file": "frames/01.png",
+      "source_cell": [
+        0,
+        0,
+        362,
+        362
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          87,
+          90,
+          306,
+          339
+        ],
+        "alpha_min": 0,
+        "alpha_max": 252,
+        "transparent_fraction": 0.740736,
+        "partial_alpha_fraction": 0.259264,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        124,
+        127,
+        433,
+        479
+      ],
+      "alpha_min": 0,
+      "alpha_max": 253,
+      "transparent_fraction": 0.740189,
+      "partial_alpha_fraction": 0.259811,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "43eaa51957f66fd5964ac722039a9101b98f3ce8e1edb6ec54ace13a5df9c738"
+    },
+    {
+      "frame": 2,
+      "file": "frames/02.png",
+      "source_cell": [
+        362,
+        0,
+        724,
+        362
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          9,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          47,
+          38,
+          325,
+          345
+        ],
+        "alpha_min": 0,
+        "alpha_max": 255,
+        "transparent_fraction": 0.526594,
+        "partial_alpha_fraction": 0.473391,
+        "opaque_fraction": 1.5e-05,
+        "padding_ltrb": [
+          0,
+          9,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 9, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        13,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        66,
+        54,
+        460,
+        489
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "transparent_fraction": 0.525719,
+      "partial_alpha_fraction": 0.474255,
+      "opaque_fraction": 2.7e-05,
+      "padding_ltrb": [
+        0,
+        13,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 13, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "ee87cdb80bf4bea3995cbcf94586d392cd7692729f0a2c2df949c26e6f70b889"
+    },
+    {
+      "frame": 3,
+      "file": "frames/03.png",
+      "source_cell": [
+        724,
+        0,
+        1086,
+        362
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          13,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          30,
+          27,
+          325,
+          350
+        ],
+        "alpha_min": 0,
+        "alpha_max": 255,
+        "transparent_fraction": 0.3649,
+        "partial_alpha_fraction": 0.635092,
+        "opaque_fraction": 8e-06,
+        "padding_ltrb": [
+          0,
+          13,
+          0,
+          0
+        ],
+        "edge_alpha_max": 2,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 13, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        18,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        42,
+        38,
+        459,
+        495
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "transparent_fraction": 0.364609,
+      "partial_alpha_fraction": 0.635387,
+      "opaque_fraction": 4e-06,
+      "padding_ltrb": [
+        0,
+        18,
+        0,
+        0
+      ],
+      "edge_alpha_max": 2,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 18, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "a97d3280752159043e18ab2303d3154f4639e893655eabb48c5c92b4b07a159f"
+    },
+    {
+      "frame": 4,
+      "file": "frames/04.png",
+      "source_cell": [
+        1086,
+        0,
+        1448,
+        362
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          19,
+          348,
+          362
+        ],
+        "visible_alpha_bounds": [
+          28,
+          27,
+          328,
+          352
+        ],
+        "alpha_min": 0,
+        "alpha_max": 253,
+        "transparent_fraction": 0.336765,
+        "partial_alpha_fraction": 0.663235,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          19,
+          14,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 19, 14, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        27,
+        492,
+        512
+      ],
+      "visible_alpha_bounds": [
+        39,
+        39,
+        464,
+        498
+      ],
+      "alpha_min": 0,
+      "alpha_max": 253,
+      "transparent_fraction": 0.336414,
+      "partial_alpha_fraction": 0.663586,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        27,
+        20,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 27, 20, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "b370c8d12f82250188c172b8f769e046d7a55fb7d6f17e02e9ac1fdbb6c9a6a8"
+    },
+    {
+      "frame": 5,
+      "file": "frames/05.png",
+      "source_cell": [
+        0,
+        362,
+        362,
+        724
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          35,
+          7,
+          344,
+          352
+        ],
+        "alpha_min": 0,
+        "alpha_max": 253,
+        "transparent_fraction": 0.378827,
+        "partial_alpha_fraction": 0.621173,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        49,
+        10,
+        487,
+        497
+      ],
+      "alpha_min": 0,
+      "alpha_max": 253,
+      "transparent_fraction": 0.378563,
+      "partial_alpha_fraction": 0.621437,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "8b3fc20f6565c48c4386a7878df07398e66de4d77326dd92c8ea92872c539efb"
+    },
+    {
+      "frame": 6,
+      "file": "frames/06.png",
+      "source_cell": [
+        362,
+        362,
+        724,
+        724
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          57,
+          6,
+          344,
+          355
+        ],
+        "alpha_min": 0,
+        "alpha_max": 254,
+        "transparent_fraction": 0.388534,
+        "partial_alpha_fraction": 0.611466,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        81,
+        9,
+        487,
+        502
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "transparent_fraction": 0.38789,
+      "partial_alpha_fraction": 0.612099,
+      "opaque_fraction": 1.1e-05,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "010607351288b676788e6cba9287d5eb7955fb1a92eaabb9b7883f2a4f848739"
+    },
+    {
+      "frame": 7,
+      "file": "frames/07.png",
+      "source_cell": [
+        724,
+        362,
+        1086,
+        724
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          59,
+          3,
+          338,
+          349
+        ],
+        "alpha_min": 0,
+        "alpha_max": 253,
+        "transparent_fraction": 0.445385,
+        "partial_alpha_fraction": 0.554615,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 4,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 4); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        84,
+        4,
+        478,
+        493
+      ],
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "transparent_fraction": 0.445568,
+      "partial_alpha_fraction": 0.55442,
+      "opaque_fraction": 1.1e-05,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 4,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 4); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "92587f77de558ceadcf7ace4f23647e7ff50f52a604b13c40c881b2f2e82eefd"
+    },
+    {
+      "frame": 8,
+      "file": "frames/08.png",
+      "source_cell": [
+        1086,
+        362,
+        1448,
+        724
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          346,
+          362
+        ],
+        "visible_alpha_bounds": [
+          77,
+          6,
+          301,
+          345
+        ],
+        "alpha_min": 0,
+        "alpha_max": 253,
+        "transparent_fraction": 0.570389,
+        "partial_alpha_fraction": 0.429611,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          16,
+          0
+        ],
+        "edge_alpha_max": 2,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 16, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        490,
+        512
+      ],
+      "visible_alpha_bounds": [
+        109,
+        8,
+        425,
+        488
+      ],
+      "alpha_min": 0,
+      "alpha_max": 253,
+      "transparent_fraction": 0.56982,
+      "partial_alpha_fraction": 0.43018,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        22,
+        0
+      ],
+      "edge_alpha_max": 2,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 22, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "308a6580d2d4e1feb3c86940adae0b28c63ef2218a3e1134959a8a4428936c61"
+    },
+    {
+      "frame": 9,
+      "file": "frames/09.png",
+      "source_cell": [
+        0,
+        724,
+        362,
+        1086
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          97,
+          10,
+          293,
+          326
+        ],
+        "alpha_min": 0,
+        "alpha_max": 252,
+        "transparent_fraction": 0.727023,
+        "partial_alpha_fraction": 0.272977,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        137,
+        14,
+        414,
+        461
+      ],
+      "alpha_min": 0,
+      "alpha_max": 252,
+      "transparent_fraction": 0.726768,
+      "partial_alpha_fraction": 0.273232,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "d5569f01cab89d32a3b7365617593090374875ae066a04118907934cd8b236ea"
+    },
+    {
+      "frame": 10,
+      "file": "frames/10.png",
+      "source_cell": [
+        362,
+        724,
+        724,
+        1086
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          120,
+          24,
+          275,
+          309
+        ],
+        "alpha_min": 0,
+        "alpha_max": 251,
+        "transparent_fraction": 0.782836,
+        "partial_alpha_fraction": 0.217164,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 2,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        170,
+        34,
+        389,
+        438
+      ],
+      "alpha_min": 0,
+      "alpha_max": 251,
+      "transparent_fraction": 0.781723,
+      "partial_alpha_fraction": 0.218277,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 2,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 2); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "98e7c7971524c3fc2978b4af43b66bdd73f252c77079f138b8fb62c841073f85"
+    },
+    {
+      "frame": 11,
+      "file": "frames/11.png",
+      "source_cell": [
+        724,
+        724,
+        1086,
+        1086
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          1,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          131,
+          43,
+          250,
+          254
+        ],
+        "alpha_min": 0,
+        "alpha_max": 223,
+        "transparent_fraction": 0.868304,
+        "partial_alpha_fraction": 0.131696,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [1, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        1,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        186,
+        61,
+        354,
+        360
+      ],
+      "alpha_min": 0,
+      "alpha_max": 225,
+      "transparent_fraction": 0.866978,
+      "partial_alpha_fraction": 0.133022,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [1, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "56d8400ec4d3855a2a2075cb8c78c9c78aab9dd4ed2d149029fc5019f93280b8"
+    },
+    {
+      "frame": 12,
+      "file": "frames/12.png",
+      "source_cell": [
+        1086,
+        724,
+        1448,
+        1086
+      ],
+      "source_alpha": {
+        "alpha_bounds": [
+          0,
+          0,
+          362,
+          362
+        ],
+        "visible_alpha_bounds": [
+          153,
+          99,
+          207,
+          180
+        ],
+        "alpha_min": 0,
+        "alpha_max": 139,
+        "transparent_fraction": 0.861337,
+        "partial_alpha_fraction": 0.138663,
+        "opaque_fraction": 0.0,
+        "padding_ltrb": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "edge_alpha_max": 1,
+        "padding_notes": [
+          "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+          "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+        ]
+      },
+      "alpha_bounds": [
+        0,
+        0,
+        512,
+        512
+      ],
+      "visible_alpha_bounds": [
+        216,
+        139,
+        293,
+        255
+      ],
+      "alpha_min": 0,
+      "alpha_max": 138,
+      "transparent_fraction": 0.85997,
+      "partial_alpha_fraction": 0.14003,
+      "opaque_fraction": 0.0,
+      "padding_ltrb": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "edge_alpha_max": 1,
+      "padding_notes": [
+        "Alpha reaches a cell edge (maximum 1); inspect for clipped wisps or generation spill. All edge pixels preserved.",
+        "Less than 8 px clear padding on at least one side: [0, 0, 0, 0]. No crop, realignment, or fringe deletion was applied."
+      ],
+      "sha256": "8382414cb122c2748acb48bad26c4245a25c72dfabe1bd6a45a75ec6458da626"
+    }
+  ]
+}

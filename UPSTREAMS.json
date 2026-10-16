@@ -1,0 +1,16 @@
+{
+  "tactyle-touch": {
+    "url": "https://github.com/gokulmc/tactyle-touch",
+    "commit": "653657f72c698b58ca44cda335033b560e077cba",
+    "license": "Apache-2.0",
+    "use": "Imported hand_scale landmark helper; upstream mouse engine is not started. Installed from the pinned Git dependency.",
+    "license_file": "THIRD_PARTY_LICENSES/tactyle-touch-Apache-2.0.txt"
+  },
+  "whisper.cpp": {
+    "url": "https://github.com/ggml-org/whisper.cpp",
+    "commit": "0c7be696371069e0baa2515ed7aa08d5a5473aa6",
+    "license": "MIT",
+    "use": "Locally built whisper-cli with the multilingual tiny model; KON uses CPU transcription by default.",
+    "license_file": "THIRD_PARTY_LICENSES/whisper.cpp-MIT.txt"
+  }
+}

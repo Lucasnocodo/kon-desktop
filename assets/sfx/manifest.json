@@ -1,0 +1,17 @@
+{
+  "selected_version": "first_short",
+  "file": "yaohu-short.wav",
+  "duration_seconds": 1.34,
+  "sample_rate": 48000,
+  "channels": 2,
+  "pcm_bits": 16,
+  "sha256": "debd8fbf6adbd9402bc14e41d2a5b15af36a61a8ba20c49d181c8800397f8c67",
+  "timing_seconds": {
+    "dash": 0,
+    "bite": 0.2,
+    "smoke": 0.3
+  },
+  "source": "yaohu-short.wav",
+  "method": "original local synthesis",
+  "provenance": "../provenance.json"
+}
