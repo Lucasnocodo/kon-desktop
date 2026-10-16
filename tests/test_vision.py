@@ -743,17 +743,22 @@ def test_worker_stop_releases_capture_and_only_loads_required_models(monkeypatch
             released.set()
 
     class FakeModel:
-        def __init__(self, result):
+        def __init__(self, result, *, delay_first=False):
             self.result = result
+            self.delay_first = delay_first
             self.closed = False
             self.inputs = []
         def detect_for_video(self, *_args):
             self.inputs.append(_args)
+            if self.delay_first and len(self.inputs) == 1:
+                # Startup work can outlast the publication age limit. Exercise
+                # that case deliberately, then allow fresh frames to proceed.
+                threading.Event().wait(.4)
             return self.result
         def close(self):
             self.closed = True
 
-    hand = FakeModel(SimpleNamespace(hand_landmarks=[], hand_world_landmarks=[], handedness=[]))
+    hand = FakeModel(SimpleNamespace(hand_landmarks=[], hand_world_landmarks=[], handedness=[]), delay_first=True)
     face = FakeModel(SimpleNamespace(face_landmarks=[]))
     (tmp_path / "hand_landmarker.task").write_bytes(b"fake asset for the stub")
     monkeypatch.setattr("kon.vision.MODEL_DIR", tmp_path)
@@ -786,12 +791,14 @@ def test_worker_stop_releases_capture_and_only_loads_required_models(monkeypatch
         previewed.set()
     worker.frame.connect(received_preview, Qt.ConnectionType.DirectConnection)
     worker.start()
-    assert opened.wait(5), "worker never reached fake capture"
-    assert observed.wait(5), "worker never published the fake delivered mode"
-    if preview_enabled:
-        assert previewed.wait(5), "worker never published its enabled preview"
-    worker.stop()
-    assert worker.wait(4000), "worker failed to stop"
+    try:
+        assert opened.wait(5), "worker never reached fake capture"
+        assert observed.wait(5), "worker never published the fake delivered mode"
+        if preview_enabled:
+            assert previewed.wait(5), "worker never published its enabled preview"
+    finally:
+        worker.stop()
+        assert worker.wait(4000), "worker failed to stop"
     assert released.is_set() and hand.closed
     assert face.closed is (aim_mode == "eye_ray")
     assert (cv2.CAP_PROP_FRAME_WIDTH, 1280) in configured
@@ -800,7 +807,14 @@ def test_worker_stop_releases_capture_and_only_loads_required_models(monkeypatch
     assert observations[0].inference_size == (720, 540)
     assert observations[0].aiming_mode == aim_mode
     assert bool(images) is preview_enabled
-    assert hand.inputs[0][1] == int(observations[0].timestamp * 1000)
+    input_ms = [arguments[1] for arguments in hand.inputs]
+    observation_ms = [int(frame.timestamp * 1000) for frame in observations]
+    assert input_ms == sorted(set(input_ms))
+    assert observation_ms == sorted(set(observation_ms))
+    # Stale inference is discarded, not relabeled with the time it completed.
+    # Every published observation must still identify an actual source input.
+    assert input_ms[0] not in observation_ms
+    assert all(timestamp in input_ms for timestamp in observation_ms)
     if aim_mode == "eye_ray":
         assert len(hand.inputs) == len(face.inputs)
         for hand_input, face_input in zip(hand.inputs, face.inputs):
