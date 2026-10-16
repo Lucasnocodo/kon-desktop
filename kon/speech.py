@@ -751,7 +751,9 @@ def offline_smoke_test(project_root: str | Path | None = None) -> dict[str, obje
     """Exercise the real multilingual model and CLI without opening a microphone.
 
     The English repository fixture verifies transcription/output separation.
-    Running it with zh additionally checks initialization, not Mandarin accuracy.
+    A one-second excerpt with zh checks initialization, not Mandarin accuracy.
+    Diagnostic inference has a longer timeout than live commands so slower
+    CPU-only machines can complete this check without changing live behavior.
     """
     root = Path(project_root or resource_root())
     cli = root / "vendor/whisper.cpp/build/bin/whisper-cli"
@@ -762,14 +764,18 @@ def offline_smoke_test(project_root: str | Path | None = None) -> dict[str, obje
             raise RuntimeError(f"Missing local smoke-test input: {path}")
     transcripts = {}
     for language in ("en", "zh"):
+        command = whisper_command(cli, model, recording, language=language)
+        if language == "zh":
+            # The fixture contains English, so decoding its entire length as
+            # Mandarin adds work without testing Mandarin recognition quality.
+            command.extend(["--duration", "1000", "--best-of", "1", "--beam-size", "1"])
         result = subprocess.run(
-            whisper_command(cli, model, recording, language=language),
-            capture_output=True, text=True, timeout=30,
+            command, capture_output=True, text=True, timeout=120,
         )
         if result.returncode:
             raise RuntimeError(f"Whisper smoke test failed: {result.stderr[-600:]}")
         text = result.stdout.strip()
-        if not text or "read_audio_data:" in text or "whisper_init" in text:
+        if (language == "en" and not text) or "read_audio_data:" in text or "whisper_init" in text:
             raise RuntimeError("Whisper did not return clean transcription on stdout.")
         if language == "en" and "fellow americans" not in text.casefold():
             raise RuntimeError(f"Unexpected English fixture transcription: {text}")

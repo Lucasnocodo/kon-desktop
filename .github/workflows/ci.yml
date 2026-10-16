@@ -26,8 +26,8 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       KON_BUILD_JOBS: '3'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
         with:
           python-version: ${{ matrix.python }}
           cache: pip
